@@ -1,0 +1,19 @@
+{
+    "cSpell.words": [
+        "ttkbootstrap"
+    ],
+    "cSpell.ignoreWords": [
+        "bootstyle",
+        "padx",
+        "pady",
+        "themename"
+    ],
+    "cSpell.customDictionaries": {
+        "custom-dictionary-workspace": {
+            "name": "custom-dictionary-workspace",
+            "path": "${workspaceFolder:Radio}/.cspell/custom-dictionary-workspace.txt",
+            "addWords": true,
+            "scope": "workspace"
+        }
+    }
+}
