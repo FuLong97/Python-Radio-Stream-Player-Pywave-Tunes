@@ -28,28 +28,21 @@ def change_volume(event):
     volume_percentage = volume / 100  # Calculate volume percentage
     volume_label.configure(text="Volume: {:.0%}".format(volume_percentage))
 
-def fetch_radio_metadata():
-    stream_url = selected_stream.get()
-    while True:
-        response = requests.get(stream_url, stream=True)
-        if 'icy-metaint' in response.headers:
-            metaint_header = int(response.headers['icy-metaint'])
-            if metaint_header > 0:
-                response.raw.read(metaint_header)  # Discard audio data
-                metadata_length = int(response.raw.read(1)[0]) * 16  # Metadata length
-                if metadata_length > 0:
-                    metadata = response.raw.read(metadata_length).decode('utf-8')
-                    metadata = metadata.strip()  # Remove leading/trailing whitespace
-                    if metadata.startswith('StreamTitle='):
-                        song_info = metadata.replace('StreamTitle=', '').strip("'").strip()
-                        # Update the label in the main GUI thread
-                        root.after_idle(lambda: current_song_label.configure(text="Current Song: " + song_info))
+def load_m3u_playlist(file_path):
+    with open(file_path, 'r') as m3u_file:
+        lines = m3u_file.readlines()
 
-        response.close()
+    # Filtere die Zeilen, die tatsächliche Stream-URLs enthalten (ignoriere Kommentare und Zeilenumbrücke)
+    stream_urls = [line.strip() for line in lines if not line.startswith('#') and line.strip()]
 
+    return stream_urls
+
+# Beispiel: M3U-Datei "radio_streams.m3u"
+m3u_file_path = 'radio_streams.m3u'
+streams = load_m3u_playlist(m3u_file_path)
 
 root = ttk.Window(themename="darkly")
-root.geometry("500x500")
+root.geometry("800x600")
 root.title("Radio")
 
 volume_slider = ttk.Scale(root, from_=0, to=100, orient=tk.HORIZONTAL, length=400)
@@ -66,7 +59,6 @@ label = ttk.Label(root, text="PyWaveTunes", font=("Arial", 30))
 label.pack(side=TOP, padx=5, pady=5)
 
 selected_stream = StringVar()
-streams = ["http://radio886.at/streams/radio_88.6/mp3", "http://radio886.at/streams/88.6_Classic_Rock/mp3"]
 stream_cb = ttk.Combobox(root, values=streams, textvariable=selected_stream, font=("Arial", 15), width=50, state="readonly")
 stream_cb.pack(side=TOP, padx=5, pady=50)
 
@@ -86,14 +78,5 @@ tabControl.pack(side="top", expand=1, fill="both")
 tab2 = ttk.Frame(tabControl)
 tabControl.add(tab2, text="Settings")
 tabControl.pack(side="top", expand=1, fill="both")
-
-current_stream_label = ttk.Label(tab1, text="Song: " + selected_stream.get(), font=("Arial", 15))
-current_stream_label.pack(padx=5, pady=5)
-current_song_label = ttk.Label(tab1, text="Current Song:", font=("Arial", 15))
-current_song_label.pack(padx=5, pady=5)
-
-fetch_thread = threading.Thread(target=fetch_radio_metadata)
-fetch_thread.daemon = True
-fetch_thread.start()
 
 root.mainloop()
