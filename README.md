@@ -18,7 +18,7 @@ The Radio Stream Player is a Python application that allows users to play and co
 4. Select a radio stream from the available options.
 5. Use the play and pause buttons to control playback.
 6. Adjust the volume using the volume slider.
-7. The current playing song information will be displayed in real-time.
+7. WIP The current playing song information will be displayed in real-time.
 
 ## Contributing
 
